@@ -1,8 +1,8 @@
 import { Redis } from '@upstash/redis';
 
-// Usar la URL y el Token que Vercel te proporcionó para Upstash
+// Usar la URL de la API REST y el Token que Vercel te proporcionó
 const redis = new Redis({
-  url: process.env.REDIS_URL,
+  url: process.env.KV_REST_API_URL,
   token: process.env.KV_REST_API_TOKEN,
 });
 
