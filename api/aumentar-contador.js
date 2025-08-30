@@ -1,28 +1,21 @@
-const fs = require('fs');
-const path = require('path');
+import { Redis } from '@upstash/redis';
 
-module.exports = (req, res) => {
-    if (req.method === 'POST') {
-        const filePath = path.join(__dirname, 'contador.json');
+// Usar la URL y el Token que Vercel te proporcionó para Upstash
+const redis = new Redis({
+  url: process.env.REDIS_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-                console.error('Error al leer el archivo:', err);
-                return res.status(500).json({ error: 'No se pudo leer el contador' });
-            }
+export default async function aumentarContador(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método no permitido. Use POST.' });
+  }
 
-            let contadorData = JSON.parse(data);
-            contadorData.contador++;
-
-            fs.writeFile(filePath, JSON.stringify(contadorData), 'utf8', (err) => {
-                if (err) {
-                    console.error('Error al escribir en el archivo:', err);
-                    return res.status(500).json({ error: 'No se pudo actualizar el contador' });
-                }
-                res.status(200).json({ contador: contadorData.contador });
-            });
-        });
-    } else {
-        res.status(405).json({ error: 'Método no permitido. Use POST.' });
-    }
-};
+  try {
+    const nuevoContador = await redis.incr('visitas');
+    return res.status(200).json({ contador: nuevoContador });
+  } catch (error) {
+    console.error('Error al aumentar el contador:', error);
+    return res.status(500).json({ error: 'No se pudo aumentar el contador' });
+  }
+}

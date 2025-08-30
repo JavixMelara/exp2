@@ -1,0 +1,11 @@
+{
+  "name": "redireccion-vercel",
+  "version": "1.0.0",
+  "description": "Un simple proyecto para redireccionar y contar clics con Vercel.",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.28.2"
+  }
+}

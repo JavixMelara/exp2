@@ -1,15 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+import { Redis } from '@upstash/redis';
 
-module.exports = (req, res) => {
-    const filePath = path.join(__dirname, 'contador.json');
+// Usar la URL y el Token que Vercel te proporcionó para Upstash
+const redis = new Redis({
+  url: process.env.REDIS_URL,
+  token: process.env.KV_REST_API_TOKEN,
+});
 
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: 'No se pudo leer el contador' });
-        }
-
-        const contadorData = JSON.parse(data);
-        res.status(200).json({ contador: contadorData.contador });
-    });
-};
+export default async function consultarContador(req, res) {
+  try {
+    const contador = await redis.get('visitas');
+    return res.status(200).json({ contador: contador || 0 });
+  } catch (error) {
+    console.error('Error al consultar el contador:', error);
+    return res.status(500).json({ error: 'No se pudo consultar el contador' });
+  }
+}
